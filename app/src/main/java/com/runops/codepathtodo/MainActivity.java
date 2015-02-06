@@ -46,7 +46,7 @@ public class MainActivity extends ActionBarActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         if (resultCode == RESULT_OK && requestCode == REQUEST_CODE) {
-            items.set(intent.getIntExtra("itemPosition", 0), intent.getStringExtra("itemText"));
+            items.set(intent.getIntExtra("itemPosition", -1), intent.getStringExtra("itemText"));
             itemsAdapter.notifyDataSetChanged();
         }
     }

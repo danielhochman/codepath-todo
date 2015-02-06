@@ -38,7 +38,7 @@ public class DocumentAdapter extends ArrayAdapter<Document> {
             row = inflater.inflate(R.layout.listview_item_document, parent, false);
 
             holder = new DocumentHolder();
-            holder.txtTitle = (TextView) row.findViewById(R.id.text1);
+            holder.title = (TextView) row.findViewById(R.id.title);
 
             row.setTag(holder);
         } else {
@@ -46,12 +46,12 @@ public class DocumentAdapter extends ArrayAdapter<Document> {
         }
 
         Document document = items.get(position);
-        holder.txtTitle.setText((String) document.getProperty("itemText"));
+        holder.title.setText((String) document.getProperty("itemText"));
 
         return row;
     }
 
     static class DocumentHolder {
-        TextView txtTitle;
+        TextView title;
     }
 }

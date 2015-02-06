@@ -134,8 +134,14 @@ public class MainActivity extends ActionBarActivity {
         AdapterView.OnItemLongClickListener itemLongClickListener = new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                items.remove(position);
-                itemsAdapter.notifyDataSetChanged();
+                Document document = items.get(position);
+                try {
+                    document.delete();
+                    items.remove(position);
+                    itemsAdapter.notifyDataSetChanged();
+                } catch (CouchbaseLiteException e) {
+                    Log.e(LOG_TAG, "Unable to delete from database", e);
+                }
                 return true;
             }
         };

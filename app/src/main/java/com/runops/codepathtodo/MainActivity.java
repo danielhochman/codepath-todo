@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -55,9 +56,23 @@ public class MainActivity extends ActionBarActivity {
     public void onAddItem(View view) {
         EditText editTextAddItem = (EditText) findViewById(R.id.editTextAddItem);
         String itemText = editTextAddItem.getText().toString();
-        itemsAdapter.add(itemText);
 
+        itemsAdapter.add(itemText);
         editTextAddItem.setText("");
 
+        setupListViewListener();
+    }
+
+    private void setupListViewListener() {
+        AdapterView.OnItemLongClickListener itemLongClickListener = new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                items.remove(position);
+                itemsAdapter.notifyDataSetChanged();
+                return true;
+            }
+        };
+
+        listViewItems.setOnItemLongClickListener(itemLongClickListener);
     }
 }

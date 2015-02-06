@@ -1,5 +1,6 @@
 package com.runops.codepathtodo;
 
+import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -14,6 +15,8 @@ import java.util.ArrayList;
 
 
 public class MainActivity extends ActionBarActivity {
+
+    private final int REQUEST_CODE = 10;
 
     ArrayList<String> items;
     ArrayAdapter<String> itemsAdapter;
@@ -53,6 +56,14 @@ public class MainActivity extends ActionBarActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        if (resultCode == RESULT_OK && requestCode == REQUEST_CODE) {
+            items.set(intent.getIntExtra("itemPosition", 0), intent.getStringExtra("itemText"));
+            itemsAdapter.notifyDataSetChanged();
+        }
+    }
+
     public void onAddItem(View view) {
         EditText editTextAddItem = (EditText) findViewById(R.id.editTextAddItem);
         String itemText = editTextAddItem.getText().toString();
@@ -73,6 +84,23 @@ public class MainActivity extends ActionBarActivity {
             }
         };
 
+        AdapterView.OnItemClickListener itemClickListener = new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                launchEditView(items.get(position), position);
+            }
+        };
+
         listViewItems.setOnItemLongClickListener(itemLongClickListener);
+        listViewItems.setOnItemClickListener(itemClickListener);
     }
+
+    public void launchEditView(String itemText, Integer itemPosition) {
+        Intent intent = new Intent(this, EditItemActivity.class);
+        intent.putExtra("itemText", itemText);
+        intent.putExtra("itemPosition", itemPosition);
+        startActivityForResult(intent, REQUEST_CODE);
+    }
+
+
 }

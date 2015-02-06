@@ -46,7 +46,7 @@ public class MainActivity extends ActionBarActivity {
         setContentView(R.layout.activity_main);
 
         items = new ArrayList<Document>();
-        itemsAdapter = new ArrayAdapter<Document>(this, android.R.layout.simple_list_item_1, items);
+        itemsAdapter = new DocumentAdapter(this, R.layout.listview_item_document, items);
 
         listViewItems = (ListView) findViewById(R.id.listViewItems);
         listViewItems.setAdapter(itemsAdapter);

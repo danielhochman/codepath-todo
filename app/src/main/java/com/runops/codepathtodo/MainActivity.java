@@ -105,8 +105,16 @@ public class MainActivity extends ActionBarActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         if (resultCode == RESULT_OK && requestCode == REQUEST_CODE) {
-//            items.set(intent.getIntExtra("itemPosition", 0), intent.getStringExtra("itemText"));
-            itemsAdapter.notifyDataSetChanged();
+            Document document = items.get(intent.getIntExtra("itemPosition", -1));
+            Map<String, Object> updatedProperties = new HashMap<String, Object>();
+            updatedProperties.putAll(document.getProperties());
+            updatedProperties.put("itemText", intent.getStringExtra("itemText"));
+            try {
+                document.putProperties(updatedProperties);
+                itemsAdapter.notifyDataSetChanged();
+            } catch (CouchbaseLiteException e) {
+                Log.e(LOG_TAG, "Could not update document", e);
+            }
         }
     }
 
@@ -140,7 +148,7 @@ public class MainActivity extends ActionBarActivity {
                     items.remove(position);
                     itemsAdapter.notifyDataSetChanged();
                 } catch (CouchbaseLiteException e) {
-                    Log.e(LOG_TAG, "Unable to delete from database", e);
+                    Log.e(LOG_TAG, "Unable to delete from db", e);
                 }
                 return true;
             }

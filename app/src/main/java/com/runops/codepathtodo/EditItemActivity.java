@@ -55,6 +55,7 @@ public class EditItemActivity extends ActionBarActivity {
     public void onSaveItem(View view) {
         Intent intent = new Intent();
         intent.putExtra("itemText", editTextExistingView.getText().toString());
+        intent.putExtra("itemPosition", itemPosition);
 
         setResult(RESULT_OK, intent);
         finish();

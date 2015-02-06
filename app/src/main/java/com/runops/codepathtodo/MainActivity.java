@@ -4,7 +4,9 @@ import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.ListView;
 
 import java.util.ArrayList;
@@ -28,7 +30,6 @@ public class MainActivity extends ActionBarActivity {
         listViewItems.setAdapter(itemsAdapter);
     }
 
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -49,5 +50,14 @@ public class MainActivity extends ActionBarActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    public void onAddItem(View view) {
+        EditText editTextAddItem = (EditText) findViewById(R.id.editTextAddItem);
+        String itemText = editTextAddItem.getText().toString();
+        itemsAdapter.add(itemText);
+
+        editTextAddItem.setText("");
+
     }
 }

@@ -32,6 +32,8 @@ public class MainActivity extends ActionBarActivity {
 
         listViewItems = (ListView) findViewById(R.id.listViewItems);
         listViewItems.setAdapter(itemsAdapter);
+
+        setupListViewListener();
     }
 
     @Override
@@ -71,7 +73,7 @@ public class MainActivity extends ActionBarActivity {
         itemsAdapter.add(itemText);
         editTextAddItem.setText("");
 
-        setupListViewListener();
+
     }
 
     private void setupListViewListener() {

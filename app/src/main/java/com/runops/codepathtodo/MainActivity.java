@@ -3,6 +3,7 @@ package com.runops.codepathtodo;
 import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -11,29 +12,72 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
 
+import com.couchbase.lite.CouchbaseLiteException;
+import com.couchbase.lite.Database;
+import com.couchbase.lite.Document;
+import com.couchbase.lite.Manager;
+import com.couchbase.lite.Query;
+import com.couchbase.lite.QueryEnumerator;
+import com.couchbase.lite.QueryRow;
+import com.couchbase.lite.android.AndroidContext;
+
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 
 public class MainActivity extends ActionBarActivity {
 
     private final int REQUEST_CODE = 10;
+    private final String LOG_TAG = "todo";
 
-    ArrayList<String> items;
-    ArrayAdapter<String> itemsAdapter;
+    ArrayList<Document> items;
+    ArrayAdapter<Document> itemsAdapter;
     ListView listViewItems;
+
+    Manager manager;
+    Database db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        items = new ArrayList<String>();
-        itemsAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, items);
+        items = new ArrayList<Document>();
+        itemsAdapter = new ArrayAdapter<Document>(this, android.R.layout.simple_list_item_1, items);
 
         listViewItems = (ListView) findViewById(R.id.listViewItems);
         listViewItems.setAdapter(itemsAdapter);
 
         setupListViewListener();
+
+        // Database setup
+        try {
+            manager = new Manager(new AndroidContext(this), Manager.DEFAULT_OPTIONS);
+        } catch (IOException e) {
+            Log.e(LOG_TAG, "Could not create manager", e);
+            return;
+        }
+
+        try {
+            db = manager.getDatabase("codepathtodo");
+        } catch (CouchbaseLiteException e) {
+            Log.e(LOG_TAG, "Could not get database", e);
+        }
+
+        try {
+            Query allDocumentsQuery = db.createAllDocumentsQuery();
+            QueryEnumerator result = allDocumentsQuery.run();
+            for (Iterator<QueryRow> iterator = result; iterator.hasNext(); ) {
+                QueryRow row = iterator.next();
+                Document document = row.getDocument();
+                itemsAdapter.add(document);
+            }
+        } catch (CouchbaseLiteException e) {
+            Log.e(LOG_TAG, "Could not load todo items from database", e);
+        }
     }
 
     @Override
@@ -61,7 +105,7 @@ public class MainActivity extends ActionBarActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         if (resultCode == RESULT_OK && requestCode == REQUEST_CODE) {
-            items.set(intent.getIntExtra("itemPosition", 0), intent.getStringExtra("itemText"));
+//            items.set(intent.getIntExtra("itemPosition", 0), intent.getStringExtra("itemText"));
             itemsAdapter.notifyDataSetChanged();
         }
     }
@@ -70,10 +114,20 @@ public class MainActivity extends ActionBarActivity {
         EditText editTextAddItem = (EditText) findViewById(R.id.editTextAddItem);
         String itemText = editTextAddItem.getText().toString();
 
-        itemsAdapter.add(itemText);
         editTextAddItem.setText("");
 
-
+        // Save the item to the database
+        Map<String, Object> docContent = new HashMap<String, Object>();
+        docContent.put("itemText", itemText);
+        docContent.put("itemPosition", items.size() - 1);
+        Document document = db.createDocument();
+        try {
+            document.putProperties(docContent);
+            itemsAdapter.add(document);
+            Log.d(LOG_TAG, "Wrote document with ID " + document.getId());
+        } catch (CouchbaseLiteException e) {
+            Log.e(LOG_TAG, "Unable to write to db", e);
+        }
     }
 
     private void setupListViewListener() {
@@ -97,9 +151,9 @@ public class MainActivity extends ActionBarActivity {
         listViewItems.setOnItemClickListener(itemClickListener);
     }
 
-    public void launchEditView(String itemText, Integer itemPosition) {
+    public void launchEditView(Document document, Integer itemPosition) {
         Intent intent = new Intent(this, EditItemActivity.class);
-        intent.putExtra("itemText", itemText);
+        intent.putExtra("itemText", (String) document.getProperty("itemText"));
         intent.putExtra("itemPosition", itemPosition);
         startActivityForResult(intent, REQUEST_CODE);
     }

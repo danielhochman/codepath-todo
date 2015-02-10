@@ -18,18 +18,33 @@
     <EditText
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
         android:inputType="textMultiLine"
         android:ems="10"
         android:id="@+id/editTextExistingItemView"
         android:layout_below="@+id/textView"
         android:layout_alignParentStart="true" />
 
+    <TextView
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="5dp"
+        android:padding="10dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/textViewDate"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        style="@android:style/Widget.Holo.Spinner"
+        android:layout_below="@id/editTextExistingItemView"
+        android:onClick="onTextViewDateClick"
+        android:text="@string/button_set_due_date"
+        />
+
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/button_save_edit"
         android:id="@+id/button_save"
-        android:layout_below="@+id/editTextExistingItemView"
+        android:layout_below="@+id/textViewDate"
         android:layout_alignParentStart="true"
         android:onClick="onSaveItem"/>
 

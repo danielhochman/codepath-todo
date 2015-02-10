@@ -8,5 +8,6 @@
 
     <string name="title_activity_edit_item">Edit Item</string>
     <string name="text_edit_item_prompt">Edit Item Below:</string>
+    <string name="button_set_due_date">Set Due Date</string>
     <string name="button_save_edit">Save</string>
 </resources>

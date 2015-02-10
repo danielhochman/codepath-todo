@@ -8,6 +8,7 @@ import android.view.Menu;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ListView;
 
@@ -109,6 +110,7 @@ public class MainActivity extends ActionBarActivity {
             Map<String, Object> updatedProperties = new HashMap<String, Object>();
             updatedProperties.putAll(document.getProperties());
             updatedProperties.put("itemText", intent.getStringExtra("itemText"));
+            updatedProperties.put("itemUpdated", getNowAsString());
             try {
                 document.putProperties(updatedProperties);
                 itemsAdapter.notifyDataSetChanged();
@@ -118,20 +120,25 @@ public class MainActivity extends ActionBarActivity {
         }
     }
 
+    private String getNowAsString() {
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+        return df.format(new Date());
+    }
+
     public void onAddItem(View view) {
         EditText editTextAddItem = (EditText) findViewById(R.id.editTextAddItem);
         String itemText = editTextAddItem.getText().toString();
 
         editTextAddItem.setText("");
 
-        DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
-        String nowAsString = df.format(new Date());
+
 
         // Save the item to the database
         Map<String, Object> docContent = new HashMap<String, Object>();
         docContent.put("itemText", itemText);
-        docContent.put("itemPosition", items.size() - 1);
-        docContent.put("itemCreatedAt", nowAsString);
+        docContent.put("itemChecked", false);
+        docContent.put("itemCreatedAt", getNowAsString());
+        docContent.put("itemUpdated", getNowAsString());
         Document document = db.createDocument();
         try {
             document.putProperties(docContent);
@@ -174,5 +181,20 @@ public class MainActivity extends ActionBarActivity {
         intent.putExtra("itemText", (String) document.getProperty("itemText"));
         intent.putExtra("itemPosition", itemPosition);
         startActivityForResult(intent, REQUEST_CODE);
+    }
+
+    public void onCheckboxToggle(View view) {
+        CheckBox checkbox = (CheckBox) view.findViewById(R.id.itemCheckbox);
+        Document document = items.get(listViewItems.getPositionForView(view));
+
+        Map<String, Object> updatedProperties = new HashMap<String, Object>();
+        updatedProperties.putAll(document.getProperties());
+        updatedProperties.put("itemChecked", checkbox.isChecked());
+        try {
+            document.putProperties(updatedProperties);
+            itemsAdapter.notifyDataSetChanged();
+        } catch (CouchbaseLiteException e) {
+            Log.e(LOG_TAG, "Could not update document", e);
+        }
     }
 }

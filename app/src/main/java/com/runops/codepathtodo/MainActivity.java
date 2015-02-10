@@ -1,8 +1,8 @@
 package com.runops.codepathtodo;
 
 import android.content.Intent;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
@@ -14,16 +14,22 @@ import android.widget.ListView;
 import com.couchbase.lite.CouchbaseLiteException;
 import com.couchbase.lite.Database;
 import com.couchbase.lite.Document;
+import com.couchbase.lite.Emitter;
 import com.couchbase.lite.Manager;
+import com.couchbase.lite.Mapper;
 import com.couchbase.lite.Query;
 import com.couchbase.lite.QueryEnumerator;
 import com.couchbase.lite.QueryRow;
 import com.couchbase.lite.android.AndroidContext;
 
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 
@@ -66,11 +72,21 @@ public class MainActivity extends ActionBarActivity {
             Log.e(LOG_TAG, "Could not get database", e);
         }
 
+        com.couchbase.lite.View itemsByCreatedAtView = db.getView("itemsByCreatedAt");
+        itemsByCreatedAtView.setMap(new Mapper() {
+            @Override
+            public void map(Map<String, Object> document, Emitter emitter) {
+                emitter.emit(document.get("itemCreatedAt"), document);
+            }
+        }, "1");
+
+        Query query = itemsByCreatedAtView.createQuery();
+        query.setDescending(false);
+
         try {
-            Query allDocumentsQuery = db.createAllDocumentsQuery();
-            QueryEnumerator result = allDocumentsQuery.run();
-            for (Iterator<QueryRow> iterator = result; iterator.hasNext(); ) {
-                QueryRow row = iterator.next();
+            QueryEnumerator result = query.run();
+            while (result.hasNext()) {
+                QueryRow row = result.next();
                 Document document = row.getDocument();
                 itemsAdapter.add(document);
             }
@@ -108,10 +124,14 @@ public class MainActivity extends ActionBarActivity {
 
         editTextAddItem.setText("");
 
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+        String nowAsString = df.format(new Date());
+
         // Save the item to the database
         Map<String, Object> docContent = new HashMap<String, Object>();
         docContent.put("itemText", itemText);
         docContent.put("itemPosition", items.size() - 1);
+        docContent.put("itemCreatedAt", nowAsString);
         Document document = db.createDocument();
         try {
             document.putProperties(docContent);

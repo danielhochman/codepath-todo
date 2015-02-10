@@ -8,6 +8,7 @@ import android.view.Menu;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ListView;
 
@@ -174,5 +175,20 @@ public class MainActivity extends ActionBarActivity {
         intent.putExtra("itemText", (String) document.getProperty("itemText"));
         intent.putExtra("itemPosition", itemPosition);
         startActivityForResult(intent, REQUEST_CODE);
+    }
+
+    public void onCheckboxToggle(View view) {
+        CheckBox checkbox = (CheckBox) view.findViewById(R.id.itemCheckbox);
+        Document document = items.get(listViewItems.getPositionForView(view));
+
+        Map<String, Object> updatedProperties = new HashMap<String, Object>();
+        updatedProperties.putAll(document.getProperties());
+        updatedProperties.put("itemChecked", checkbox.isChecked());
+        try {
+            document.putProperties(updatedProperties);
+            itemsAdapter.notifyDataSetChanged();
+        } catch (CouchbaseLiteException e) {
+            Log.e(LOG_TAG, "Could not update document", e);
+        }
     }
 }

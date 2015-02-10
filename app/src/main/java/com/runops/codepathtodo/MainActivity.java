@@ -110,6 +110,7 @@ public class MainActivity extends ActionBarActivity {
             Map<String, Object> updatedProperties = new HashMap<String, Object>();
             updatedProperties.putAll(document.getProperties());
             updatedProperties.put("itemText", intent.getStringExtra("itemText"));
+            updatedProperties.put("itemUpdated", getNowAsString());
             try {
                 document.putProperties(updatedProperties);
                 itemsAdapter.notifyDataSetChanged();
@@ -119,20 +120,25 @@ public class MainActivity extends ActionBarActivity {
         }
     }
 
+    private String getNowAsString() {
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+        return df.format(new Date());
+    }
+
     public void onAddItem(View view) {
         EditText editTextAddItem = (EditText) findViewById(R.id.editTextAddItem);
         String itemText = editTextAddItem.getText().toString();
 
         editTextAddItem.setText("");
 
-        DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
-        String nowAsString = df.format(new Date());
+
 
         // Save the item to the database
         Map<String, Object> docContent = new HashMap<String, Object>();
         docContent.put("itemText", itemText);
         docContent.put("itemChecked", false);
-        docContent.put("itemCreatedAt", nowAsString);
+        docContent.put("itemCreatedAt", getNowAsString());
+        docContent.put("itemUpdated", getNowAsString());
         Document document = db.createDocument();
         try {
             document.putProperties(docContent);

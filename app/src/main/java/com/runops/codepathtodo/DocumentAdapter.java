@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
 import android.widget.TextView;
 
 import com.couchbase.lite.Document;
@@ -31,7 +32,7 @@ public class DocumentAdapter extends ArrayAdapter<Document> {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         View row = convertView;
-        DocumentHolder holder = null;
+        DocumentHolder holder;
 
         if (row == null) {
             LayoutInflater inflater = ((Activity) context).getLayoutInflater();
@@ -39,6 +40,7 @@ public class DocumentAdapter extends ArrayAdapter<Document> {
 
             holder = new DocumentHolder();
             holder.title = (TextView) row.findViewById(R.id.itemTitle);
+            holder.checkbox = (CheckBox) row.findViewById(R.id.itemCheckbox);
 
             row.setTag(holder);
         } else {
@@ -47,11 +49,13 @@ public class DocumentAdapter extends ArrayAdapter<Document> {
 
         Document document = items.get(position);
         holder.title.setText((String) document.getProperty("itemText"));
+        holder.checkbox.setChecked((boolean) document.getProperty("itemChecked"));
 
         return row;
     }
 
     static class DocumentHolder {
         TextView title;
+        CheckBox checkbox;
     }
 }

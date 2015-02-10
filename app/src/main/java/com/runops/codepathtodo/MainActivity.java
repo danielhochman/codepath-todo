@@ -130,6 +130,7 @@ public class MainActivity extends ActionBarActivity {
         // Save the item to the database
         Map<String, Object> docContent = new HashMap<String, Object>();
         docContent.put("itemText", itemText);
+        docContent.put("itemChecked", false);
         docContent.put("itemCreatedAt", nowAsString);
         Document document = db.createDocument();
         try {
